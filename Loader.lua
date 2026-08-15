@@ -1,29 +1,28 @@
 --[[
     ═══════════════════════════════════════════════════════════════
-    ✨ RAW LINK CONVERTER v5.1 - FLUENT EDITION (CORRIGÉE)
+    ✨ RAW LINK CONVERTER v6.0 - HYDRO EDITION
+    ═══════════════════════════════════════════════════════════════
+    Interface ultra moderne avec Hydro Library
     ═══════════════════════════════════════════════════════════════
 ]]
 
 -- ================================================================
--- CHARGEMENT DE FLUENT
+-- CHARGEMENT DE HYDRO
 -- ================================================================
 
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+local Hydro = loadstring(game:HttpGet("https://raw.githubusercontent.com/hydro-development/Hydro/main/source.lua"))()
 
 -- ================================================================
 -- CONFIGURATION
 -- ================================================================
 
-local Window = Fluent:CreateWindow({
-    Title = "⚡ Raw Link Converter v5.1",
-    SubTitle = "Générateur de loadstring premium",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 480),
-    Acrylic = true,
+local Window = Hydro:CreateWindow({
+    Title = "⚡ Raw Link Converter",
+    Subtitle = "Générateur de loadstring premium",
+    Size = Vector2.new(580, 480),
+    Position = Enum.Center,
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
+    Transparency = 0.9
 })
 
 -- ================================================================
@@ -34,6 +33,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local currentUrl = ""
 local convertedUrl = ""
+local historyList = {}
 
 -- ================================================================
 -- FONCTION DE COPIE
@@ -109,9 +109,25 @@ local function convertToRaw(url)
     
     return url, false
 end
+
+-- ================================================================
+-- FONCTION HISTORIQUE
+-- ================================================================
+
+function addToHistory(original, converted)
+    table.insert(historyList, 1, {
+        original = original,
+        converted = converted,
+        time = os.date("%H:%M:%S")
+    })
+    
+    if #historyList > 10 then
+        table.remove(historyList)
+    end
+end
 --[[
     ═══════════════════════════════════════════════════════════════
-    ✨ RAW LINK CONVERTER v5.1 - PARTIE 2/3
+    ✨ RAW LINK CONVERTER v6.0 - PARTIE 2/3
     ═══════════════════════════════════════════════════════════════
 ]]
 
@@ -119,7 +135,7 @@ end
 -- TAB PRINCIPAL
 -- ================================================================
 
-local MainTab = Window:AddTab({
+local MainTab = Window:CreateTab({
     Title = "🏠 Accueil",
     Icon = "home"
 })
@@ -128,12 +144,12 @@ local MainTab = Window:AddTab({
 -- SECTION : INPUT
 -- ================================================================
 
-local InputSection = MainTab:AddSection({
+local InputSection = MainTab:CreateSection({
     Title = "📥 Entrez votre lien"
 })
 
 -- Input
-local LinkInput = InputSection:AddInput({
+local LinkInput = InputSection:CreateInput({
     Title = "Lien à convertir",
     Subtitle = "Collez n'importe quel lien GitHub, Pastebin, Gist...",
     Placeholder = "https://github.com/user/repo/blob/main/script.lua",
@@ -146,17 +162,17 @@ local LinkInput = InputSection:AddInput({
 -- SECTION : BOUTONS
 -- ================================================================
 
-local ButtonSection = MainTab:AddSection({
+local ButtonSection = MainTab:CreateSection({
     Title = "⚡ Actions"
 })
 
 -- Bouton Convertir
-ButtonSection:AddButton({
+ButtonSection:CreateButton({
     Title = "🔄 Convertir en Raw",
-    Description = "Transforme le lien en format raw",
+    Subtitle = "Transforme le lien en format raw",
     Callback = function()
         if currentUrl == "" then
-            Fluent:Notify({
+            Hydro:Notify({
                 Title = "❌ Erreur",
                 Content = "Veuillez entrer un lien !",
                 Duration = 3
@@ -167,24 +183,32 @@ ButtonSection:AddButton({
         local rawUrl, wasRaw = convertToRaw(currentUrl)
         convertedUrl = rawUrl
         
-        -- Ajouter à l'historique
         addToHistory(currentUrl, rawUrl)
         
         if wasRaw then
-            ResultLabel:SetValue("✅ Déjà en format raw !\n" .. rawUrl)
-            Fluent:Notify({
+            ResultLabel:Set({
+                Title = "✅ Déjà en format raw !",
+                Subtitle = rawUrl
+            })
+            Hydro:Notify({
                 Title = "✅ Lien déjà raw",
                 Content = "Le lien est déjà au bon format",
                 Duration = 3
             })
         else
-            ResultLabel:SetValue("✅ Converti avec succès !\n" .. rawUrl)
-            Fluent:Notify({
+            ResultLabel:Set({
+                Title = "✅ Converti avec succès !",
+                Subtitle = rawUrl
+            })
+            Hydro:Notify({
                 Title = "✅ Conversion réussie !",
                 Content = "Le lien a été converti en raw",
                 Duration = 3
             })
         end
+        
+        -- Mettre à jour l'historique
+        UpdateHistory()
     end
 })
 
@@ -192,31 +216,31 @@ ButtonSection:AddButton({
 -- SECTION : RÉSULTAT
 -- ================================================================
 
-local ResultSection = MainTab:AddSection({
+local ResultSection = MainTab:CreateSection({
     Title = "📋 Résultat"
 })
 
--- Label résultat (CORRIGÉ)
-local ResultLabel = ResultSection:AddLabel({
-    Title = "En attente d'un lien...",
-    Description = "Le résultat apparaîtra ici"
+-- Label résultat
+local ResultLabel = ResultSection:CreateLabel({
+    Title = "⏳ En attente d'un lien...",
+    Subtitle = "Le résultat apparaîtra ici"
 })
 
 -- ================================================================
 -- SECTION : ACTIONS SUR LE RÉSULTAT
 -- ================================================================
 
-local ActionSection = MainTab:AddSection({
+local ActionSection = MainTab:CreateSection({
     Title = "🎯 Actions sur le résultat"
 })
 
 -- Bouton Copier URL
-ActionSection:AddButton({
+ActionSection:CreateButton({
     Title = "📋 Copier l'URL brute",
-    Description = "Copie uniquement le lien raw",
+    Subtitle = "Copie uniquement le lien raw",
     Callback = function()
         if convertedUrl == "" then
-            Fluent:Notify({
+            Hydro:Notify({
                 Title = "❌ Erreur",
                 Content = "Aucun lien à copier !",
                 Duration = 3
@@ -225,13 +249,13 @@ ActionSection:AddButton({
         end
         
         if copyToClipboard(convertedUrl) then
-            Fluent:Notify({
+            Hydro:Notify({
                 Title = "✅ Copié !",
                 Content = "URL brute copiée dans le presse-papier",
                 Duration = 3
             })
         else
-            Fluent:Notify({
+            Hydro:Notify({
                 Title = "❌ Erreur",
                 Content = "Impossible de copier",
                 Duration = 3
@@ -241,12 +265,12 @@ ActionSection:AddButton({
 })
 
 -- Bouton Copier Loadstring (AVEC LE LOADSTRING)
-ActionSection:AddButton({
+ActionSection:CreateButton({
     Title = "⚡ Copier le loadstring",
-    Description = "Copie 'loadstring(game:HttpGet('url'))()'",
+    Subtitle = "Copie 'loadstring(game:HttpGet('url'))()'",
     Callback = function()
         if convertedUrl == "" then
-            Fluent:Notify({
+            Hydro:Notify({
                 Title = "❌ Erreur",
                 Content = "Aucun lien à copier !",
                 Duration = 3
@@ -257,13 +281,13 @@ ActionSection:AddButton({
         local loadstringCode = 'loadstring(game:HttpGet("' .. convertedUrl .. '"))()'
         
         if copyToClipboard(loadstringCode) then
-            Fluent:Notify({
+            Hydro:Notify({
                 Title = "✅ Loadstring copié !",
                 Content = "Prêt à être exécuté",
                 Duration = 3
             })
         else
-            Fluent:Notify({
+            Hydro:Notify({
                 Title = "❌ Erreur",
                 Content = "Impossible de copier",
                 Duration = 3
@@ -273,7 +297,7 @@ ActionSection:AddButton({
 })
 --[[
     ═══════════════════════════════════════════════════════════════
-    ✨ RAW LINK CONVERTER v5.1 - PARTIE 3/3
+    ✨ RAW LINK CONVERTER v6.0 - PARTIE 3/3
     ═══════════════════════════════════════════════════════════════
 ]]
 
@@ -281,82 +305,59 @@ ActionSection:AddButton({
 -- TAB : HISTORIQUE
 -- ================================================================
 
-local HistoryTab = Window:AddTab({
+local HistoryTab = Window:CreateTab({
     Title = "📜 Historique",
     Icon = "history"
 })
 
-local HistorySection = HistoryTab:AddSection({
+local HistorySection = HistoryTab:CreateSection({
     Title = "📋 Derniers liens convertis"
 })
 
-local historyList = {}
-local HistoryLabel
+-- Label historique
+local HistoryLabel = HistorySection:CreateLabel({
+    Title = "Aucune conversion",
+    Subtitle = "Les liens convertis apparaîtront ici"
+})
 
--- Fonction pour ajouter à l'historique (CORRIGÉE)
-function addToHistory(original, converted)
-    table.insert(historyList, 1, {
-        original = original,
-        converted = converted,
-        time = os.date("%H:%M:%S")
-    })
-    
-    if #historyList > 10 then
-        table.remove(historyList)
-    end
-    
-    -- Mettre à jour l'affichage
+-- Fonction pour mettre à jour l'historique
+function UpdateHistory()
     local text = "🕐 Historique des conversions :\n\n"
-    for i, item in ipairs(historyList) do
-        text = text .. i .. ". " .. item.original .. "\n   → " .. item.converted .. "\n   ⏰ " .. item.time .. "\n\n"
-    end
     
     if #historyList == 0 then
         text = "Aucune conversion pour le moment"
+    else
+        for i, item in ipairs(historyList) do
+            text = text .. i .. ". " .. item.original .. "\n   → " .. item.converted .. "\n   ⏰ " .. item.time .. "\n\n"
+        end
     end
     
-    -- Mettre à jour le label
-    if HistoryLabel then
-        HistoryLabel:SetValue(text)
-    end
+    HistoryLabel:Set({
+        Title = text,
+        Subtitle = #historyList .. " conversions enregistrées"
+    })
 end
-
--- Créer le label d'historique (CORRIGÉ)
-HistoryLabel = HistorySection:AddLabel({
-    Title = "Aucune conversion",
-    Description = "Les liens convertis apparaîtront ici"
-})
 
 -- ================================================================
 -- TAB : PARAMÈTRES
 -- ================================================================
 
-local SettingsTab = Window:AddTab({
+local SettingsTab = Window:CreateTab({
     Title = "⚙️ Paramètres",
     Icon = "settings"
 })
 
-local SettingsSection = SettingsTab:AddSection({
+local SettingsSection = SettingsTab:CreateSection({
     Title = "⚙️ Configuration"
 })
 
 -- Toggle : Notifications
-SettingsSection:AddToggle({
+SettingsSection:CreateToggle({
     Title = "🔔 Notifications",
-    Description = "Afficher les notifications lors des actions",
+    Subtitle = "Afficher les notifications lors des actions",
     Default = true,
     Callback = function(Value)
-        Fluent.NotifyEnabled = Value
-    end
-})
-
--- Toggle : Design moderne
-SettingsSection:AddToggle({
-    Title = "✨ Design moderne",
-    Description = "Activer l'effet acrylique / glassmorphism",
-    Default = true,
-    Callback = function(Value)
-        Window.Acrylic = Value
+        Hydro.NotifyEnabled = Value
     end
 })
 
@@ -364,18 +365,18 @@ SettingsSection:AddToggle({
 -- TAB : À PROPOS
 -- ================================================================
 
-local AboutTab = Window:AddTab({
+local AboutTab = Window:CreateTab({
     Title = "ℹ️ À propos",
     Icon = "info"
 })
 
-local AboutSection = AboutTab:AddSection({
+local AboutSection = AboutTab:CreateSection({
     Title = "ℹ️ Informations"
 })
 
-AboutSection:AddLabel({
-    Title = "⚡ Raw Link Converter v5.1",
-    Description = "Développé avec Fluent Library\n\n"
+AboutSection:CreateLabel({
+    Title = "⚡ Raw Link Converter v6.0",
+    Subtitle = "Développé avec Hydro Library\n\n"
         .. "📌 Fonctionnalités :\n"
         .. "• Conversion automatique de liens (GitHub, Pastebin, Gist, GitLab)\n"
         .. "• Copie d'URL brute\n"
@@ -406,7 +407,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if convertedUrl ~= "" then
             local loadstringCode = 'loadstring(game:HttpGet("' .. convertedUrl .. '"))()'
             if copyToClipboard(loadstringCode) then
-                Fluent:Notify({
+                Hydro:Notify({
                     Title = "✅ Loadstring copié !",
                     Content = "Raccourci : Ctrl+Shift+C",
                     Duration = 2
@@ -422,22 +423,23 @@ end)
 
 addToHistory("https://github.com/example/repo/blob/main/script.lua", "https://raw.githubusercontent.com/example/repo/main/script.lua")
 addToHistory("https://pastebin.com/ABC123", "https://pastebin.com/raw/ABC123")
+UpdateHistory()
 
 -- ================================================================
 -- LANCEMENT
 -- ================================================================
 
-print("✨ Raw Link Converter v5.1 chargé avec Fluent !")
+print("✨ Raw Link Converter v6.0 chargé avec Hydro !")
 print("📋 Raccourci : Ctrl+Shift+C pour copier le loadstring")
 
 -- Notifications de bienvenue
-Fluent:Notify({
+Hydro:Notify({
     Title = "⚡ Raw Link Converter",
     Content = "Interface chargée avec succès !",
     Duration = 3
 })
 
-Fluent:Notify({
+Hydro:Notify({
     Title = "💡 Astuce",
     Content = "Ctrl+Shift+C pour copier le loadstring rapidement",
     Duration = 3
