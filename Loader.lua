@@ -1,8 +1,6 @@
 --[[
     ═══════════════════════════════════════════════════════════════
-    ✨ RAW LINK CONVERTER v5.0 - FLUENT EDITION
-    ═══════════════════════════════════════════════════════════════
-    Interface ultra moderne avec Fluent Library
+    ✨ RAW LINK CONVERTER v5.1 - FLUENT EDITION (CORRIGÉE)
     ═══════════════════════════════════════════════════════════════
 ]]
 
@@ -19,14 +17,23 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 -- ================================================================
 
 local Window = Fluent:CreateWindow({
-    Title = "⚡ Raw Link Converter v5.0",
+    Title = "⚡ Raw Link Converter v5.1",
     SubTitle = "Générateur de loadstring premium",
     TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
+    Size = UDim2.fromOffset(580, 480),
     Acrylic = true,
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
+
+-- ================================================================
+-- VARIABLES GLOBALES
+-- ================================================================
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local currentUrl = ""
+local convertedUrl = ""
 
 -- ================================================================
 -- FONCTION DE COPIE
@@ -56,15 +63,6 @@ local function copyToClipboard(text)
     
     return success
 end
-
--- ================================================================
--- VARIABLES GLOBALES
--- ================================================================
-
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local currentUrl = ""
-local convertedUrl = ""
 
 -- ================================================================
 -- FONCTIONS DE CONVERSION
@@ -113,7 +111,7 @@ local function convertToRaw(url)
 end
 --[[
     ═══════════════════════════════════════════════════════════════
-    ✨ RAW LINK CONVERTER v5.0 - PARTIE 2/3
+    ✨ RAW LINK CONVERTER v5.1 - PARTIE 2/3
     ═══════════════════════════════════════════════════════════════
 ]]
 
@@ -169,6 +167,9 @@ ButtonSection:AddButton({
         local rawUrl, wasRaw = convertToRaw(currentUrl)
         convertedUrl = rawUrl
         
+        -- Ajouter à l'historique
+        addToHistory(currentUrl, rawUrl)
+        
         if wasRaw then
             ResultLabel:SetValue("✅ Déjà en format raw !\n" .. rawUrl)
             Fluent:Notify({
@@ -195,7 +196,7 @@ local ResultSection = MainTab:AddSection({
     Title = "📋 Résultat"
 })
 
--- Label résultat
+-- Label résultat (CORRIGÉ)
 local ResultLabel = ResultSection:AddLabel({
     Title = "En attente d'un lien...",
     Description = "Le résultat apparaîtra ici"
@@ -239,7 +240,7 @@ ActionSection:AddButton({
     end
 })
 
--- Bouton Copier Loadstring
+-- Bouton Copier Loadstring (AVEC LE LOADSTRING)
 ActionSection:AddButton({
     Title = "⚡ Copier le loadstring",
     Description = "Copie 'loadstring(game:HttpGet('url'))()'",
@@ -272,7 +273,7 @@ ActionSection:AddButton({
 })
 --[[
     ═══════════════════════════════════════════════════════════════
-    ✨ RAW LINK CONVERTER v5.0 - PARTIE 3/3
+    ✨ RAW LINK CONVERTER v5.1 - PARTIE 3/3
     ═══════════════════════════════════════════════════════════════
 ]]
 
@@ -290,8 +291,10 @@ local HistorySection = HistoryTab:AddSection({
 })
 
 local historyList = {}
+local HistoryLabel
 
-local function addToHistory(original, converted)
+-- Fonction pour ajouter à l'historique (CORRIGÉE)
+function addToHistory(original, converted)
     table.insert(historyList, 1, {
         original = original,
         converted = converted,
@@ -312,10 +315,14 @@ local function addToHistory(original, converted)
         text = "Aucune conversion pour le moment"
     end
     
-    HistoryLabel:SetValue(text)
+    -- Mettre à jour le label
+    if HistoryLabel then
+        HistoryLabel:SetValue(text)
+    end
 end
 
-local HistoryLabel = HistorySection:AddLabel({
+-- Créer le label d'historique (CORRIGÉ)
+HistoryLabel = HistorySection:AddLabel({
     Title = "Aucune conversion",
     Description = "Les liens convertis apparaîtront ici"
 })
@@ -367,7 +374,7 @@ local AboutSection = AboutTab:AddSection({
 })
 
 AboutSection:AddLabel({
-    Title = "⚡ Raw Link Converter v5.0",
+    Title = "⚡ Raw Link Converter v5.1",
     Description = "Développé avec Fluent Library\n\n"
         .. "📌 Fonctionnalités :\n"
         .. "• Conversion automatique de liens (GitHub, Pastebin, Gist, GitLab)\n"
@@ -378,7 +385,8 @@ AboutSection:AddLabel({
         .. "💡 Utilisation :\n"
         .. "1. Collez un lien\n"
         .. "2. Cliquez sur Convertir\n"
-        .. "3. Copiez l'URL ou le loadstring"
+        .. "3. Copiez l'URL ou le loadstring\n\n"
+        .. "⌨️ Raccourci : Ctrl+Shift+C pour copier le loadstring"
 })
 
 -- ================================================================
@@ -409,56 +417,17 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 end)
 
 -- ================================================================
--- OVERRIDE DE LA FONCTION CONVERTIR POUR L'HISTORIQUE
+-- INITIALISER L'HISTORIQUE
 -- ================================================================
 
--- Sauvegarder l'ancienne fonction
-local originalConvert = ButtonSection._Callbacks[1]
-
--- Remplacer par la nouvelle avec historique
-ButtonSection:Clear()
-ButtonSection:AddButton({
-    Title = "🔄 Convertir en Raw",
-    Description = "Transforme le lien en format raw",
-    Callback = function()
-        if currentUrl == "" then
-            Fluent:Notify({
-                Title = "❌ Erreur",
-                Content = "Veuillez entrer un lien !",
-                Duration = 3
-            })
-            return
-        end
-        
-        local rawUrl, wasRaw = convertToRaw(currentUrl)
-        convertedUrl = rawUrl
-        
-        -- Ajouter à l'historique
-        addToHistory(currentUrl, rawUrl)
-        
-        if wasRaw then
-            ResultLabel:SetValue("✅ Déjà en format raw !\n" .. rawUrl)
-            Fluent:Notify({
-                Title = "✅ Lien déjà raw",
-                Content = "Le lien est déjà au bon format",
-                Duration = 3
-            })
-        else
-            ResultLabel:SetValue("✅ Converti avec succès !\n" .. rawUrl)
-            Fluent:Notify({
-                Title = "✅ Conversion réussie !",
-                Content = "Le lien a été converti en raw",
-                Duration = 3
-            })
-        end
-    end
-})
+addToHistory("https://github.com/example/repo/blob/main/script.lua", "https://raw.githubusercontent.com/example/repo/main/script.lua")
+addToHistory("https://pastebin.com/ABC123", "https://pastebin.com/raw/ABC123")
 
 -- ================================================================
 -- LANCEMENT
 -- ================================================================
 
-print("✨ Raw Link Converter v5.0 chargé avec Fluent !")
+print("✨ Raw Link Converter v5.1 chargé avec Fluent !")
 print("📋 Raccourci : Ctrl+Shift+C pour copier le loadstring")
 
 -- Notifications de bienvenue
