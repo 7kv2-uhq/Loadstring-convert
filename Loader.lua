@@ -1,21 +1,36 @@
 --[[
-    ═══════════════════════════════════════════════════
-    ✨ RAW LINK CONVERTER v4.0 - PARTIE 1/3
-    ═══════════════════════════════════════════════════
+    ═══════════════════════════════════════════════════════════════
+    ✨ RAW LINK CONVERTER v5.0 - FLUENT EDITION
+    ═══════════════════════════════════════════════════════════════
+    Interface ultra moderne avec Fluent Library
+    ═══════════════════════════════════════════════════════════════
 ]]
 
--- ====================================================
--- IMPORTS
--- ====================================================
+-- ================================================================
+-- CHARGEMENT DE FLUENT
+-- ================================================================
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
--- ====================================================
+-- ================================================================
+-- CONFIGURATION
+-- ================================================================
+
+local Window = Fluent:CreateWindow({
+    Title = "⚡ Raw Link Converter v5.0",
+    SubTitle = "Générateur de loadstring premium",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+-- ================================================================
 -- FONCTION DE COPIE
--- ====================================================
+-- ================================================================
 
 local function copyToClipboard(text)
     local success = false
@@ -42,27 +57,18 @@ local function copyToClipboard(text)
     return success
 end
 
--- ====================================================
--- COULEURS
--- ====================================================
+-- ================================================================
+-- VARIABLES GLOBALES
+-- ================================================================
 
-local THEME = {
-    Primary = Color3.fromRGB(99, 102, 241),
-    PrimaryLight = Color3.fromRGB(129, 140, 248),
-    Background = Color3.fromRGB(15, 15, 25),
-    Surface = Color3.fromRGB(25, 25, 40),
-    Text = Color3.fromRGB(255, 255, 255),
-    TextSecondary = Color3.fromRGB(180, 180, 200),
-    TextDim = Color3.fromRGB(120, 120, 140),
-    Success = Color3.fromRGB(52, 211, 153),
-    Error = Color3.fromRGB(251, 113, 133),
-    Warning = Color3.fromRGB(251, 191, 36),
-    Border = Color3.fromRGB(60, 60, 90),
-}
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local currentUrl = ""
+local convertedUrl = ""
 
--- ====================================================
--- CONVERSION
--- ====================================================
+-- ================================================================
+-- FONCTIONS DE CONVERSION
+-- ================================================================
 
 local function convertToRaw(url)
     url = url:gsub("^%s+", ""):gsub("%s+$", "")
@@ -89,6 +95,10 @@ local function convertToRaw(url)
         {
             pattern = "gist%.github%.com/([^/]+)/([%w]+)",
             format = "https://gist.githubusercontent.com/%s/%s/raw"
+        },
+        {
+            pattern = "gitlab%.com/([^/]+)/([^/]+)/-/blob/([^/]+)/(.+)",
+            format = "https://gitlab.com/%s/%s/-/raw/%s/%s"
         }
     }
     
@@ -102,393 +112,364 @@ local function convertToRaw(url)
     return url, false
 end
 --[[
-    ═══════════════════════════════════════════════════
-    ✨ RAW LINK CONVERTER v4.0 - PARTIE 2/3
-    ═══════════════════════════════════════════════════
+    ═══════════════════════════════════════════════════════════════
+    ✨ RAW LINK CONVERTER v5.0 - PARTIE 2/3
+    ═══════════════════════════════════════════════════════════════
 ]]
 
--- ====================================================
--- CRÉATION DE L'UI
--- ====================================================
+-- ================================================================
+-- TAB PRINCIPAL
+-- ================================================================
 
-local function createUI()
-    -- ScreenGui
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "RawLinkConverterUI"
-    screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-    screenGui.ResetOnSpawn = false
-    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    
-    -- Main Frame
-    local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, 500, 0, 420)
-    mainFrame.Position = UDim2.new(0.5, -250, 0.5, -210)
-    mainFrame.BackgroundColor3 = THEME.Background
-    mainFrame.BackgroundTransparency = 0.15
-    mainFrame.BorderSizePixel = 1
-    mainFrame.BorderColor3 = THEME.Border
-    mainFrame.ClipsDescendants = true
-    mainFrame.Parent = screenGui
-    
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 14)
-    corner.Parent = mainFrame
-    
-    local glass = Instance.new("Frame")
-    glass.Size = UDim2.new(1, 0, 1, 0)
-    glass.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    glass.BackgroundTransparency = 0.94
-    glass.BorderSizePixel = 0
-    glass.Parent = mainFrame
-    
-    local topBar = Instance.new("Frame")
-    topBar.Size = UDim2.new(1, 0, 0, 3)
-    topBar.BackgroundColor3 = THEME.Primary
-    topBar.BorderSizePixel = 0
-    topBar.Parent = mainFrame
-    
-    -- ====================================================
-    -- BARRE DE TITRE
-    -- ====================================================
-    
-    local titleBar = Instance.new("Frame")
-    titleBar.Size = UDim2.new(1, 0, 0, 50)
-    titleBar.BackgroundTransparency = 1
-    titleBar.Parent = mainFrame
-    
-    local icon = Instance.new("TextLabel")
-    icon.Size = UDim2.new(0, 35, 0, 35)
-    icon.Position = UDim2.new(0, 15, 0, 8)
-    icon.BackgroundTransparency = 1
-    icon.Text = "⚡"
-    icon.TextColor3 = THEME.PrimaryLight
-    icon.TextScaled = true
-    icon.Font = Enum.Font.GothamBold
-    icon.Parent = titleBar
-    
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(0, 200, 0, 25)
-    title.Position = UDim2.new(0, 55, 0, 8)
-    title.BackgroundTransparency = 1
-    title.Text = "Raw Link Converter"
-    title.TextColor3 = THEME.Text
-    title.TextSize = 18
-    title.Font = Enum.Font.GothamBold
-    title.TextXAlignment = Enum.TextXAlignment.Left
-    title.Parent = titleBar
-    
-    local sub = Instance.new("TextLabel")
-    sub.Size = UDim2.new(0, 200, 0, 15)
-    sub.Position = UDim2.new(0, 55, 0, 30)
-    sub.BackgroundTransparency = 1
-    sub.Text = "Générateur de loadstring"
-    sub.TextColor3 = THEME.TextDim
-    sub.TextSize = 10
-    sub.Font = Enum.Font.Gotham
-    sub.TextXAlignment = Enum.TextXAlignment.Left
-    sub.Parent = titleBar
-    
-    local closeBtn = Instance.new("TextButton")
-    closeBtn.Size = UDim2.new(0, 35, 0, 35)
-    closeBtn.Position = UDim2.new(1, -45, 0, 8)
-    closeBtn.BackgroundTransparency = 1
-    closeBtn.Text = "✕"
-    closeBtn.TextColor3 = Color3.fromRGB(150, 150, 180)
-    closeBtn.TextScaled = true
-    closeBtn.Font = Enum.Font.GothamBold
-    closeBtn.BorderSizePixel = 0
-    closeBtn.Parent = titleBar
-    
-    -- ====================================================
-    -- INPUT
-    -- ====================================================
-    
-    local inputContainer = Instance.new("Frame")
-    inputContainer.Size = UDim2.new(0.9, 0, 0, 45)
-    inputContainer.Position = UDim2.new(0.05, 0, 0, 65)
-    inputContainer.BackgroundColor3 = THEME.Surface
-    inputContainer.BackgroundTransparency = 0.5
-    inputContainer.BorderSizePixel = 1
-    inputContainer.BorderColor3 = THEME.Border
-    inputContainer.ClipsDescendants = true
-    inputContainer.Parent = mainFrame
-    
-    local inputCorner = Instance.new("UICorner")
-    inputCorner.CornerRadius = UDim.new(0, 10)
-    inputCorner.Parent = inputContainer
-    
-    local inputBox = Instance.new("TextBox")
-    inputBox.Size = UDim2.new(1, -20, 1, 0)
-    inputBox.Position = UDim2.new(0, 10, 0, 0)
-    inputBox.BackgroundTransparency = 1
-    inputBox.Text = ""
-    inputBox.PlaceholderText = "🔗 Collez votre lien ici..."
-    inputBox.TextColor3 = THEME.Text
-    inputBox.PlaceholderColor3 = THEME.TextDim
-    inputBox.TextSize = 14
-    inputBox.Font = Enum.Font.Gotham
-    inputBox.ClearTextOnFocus = false
-    inputBox.Parent = inputContainer
-    
-    -- ====================================================
-    -- BOUTONS
-    -- ====================================================
-    
-    local convertBtn = Instance.new("TextButton")
-    convertBtn.Size = UDim2.new(0.42, 0, 0, 42)
-    convertBtn.Position = UDim2.new(0.05, 0, 0, 125)
-    convertBtn.BackgroundColor3 = THEME.Primary
-    convertBtn.TextColor3 = THEME.Text
-    convertBtn.Text = "🔄 Convertir"
-    convertBtn.TextSize = 15
-    convertBtn.Font = Enum.Font.GothamBold
-    convertBtn.BorderSizePixel = 0
-    convertBtn.Parent = mainFrame
-    
-    local btnCorner1 = Instance.new("UICorner")
-    btnCorner1.CornerRadius = UDim.new(0, 10)
-    btnCorner1.Parent = convertBtn
-    
-    local copyBtn = Instance.new("TextButton")
-    copyBtn.Size = UDim2.new(0.42, 0, 0, 42)
-    copyBtn.Position = UDim2.new(0.53, 0, 0, 125)
-    copyBtn.BackgroundColor3 = THEME.Surface
-    copyBtn.BackgroundTransparency = 0.3
-    copyBtn.TextColor3 = THEME.TextSecondary
-    copyBtn.Text = "📋 Copier"
-    copyBtn.TextSize = 15
-    copyBtn.Font = Enum.Font.GothamBold
-    copyBtn.BorderSizePixel = 1
-    copyBtn.BorderColor3 = THEME.Border
-    copyBtn.Parent = mainFrame
-    
-    local btnCorner2 = Instance.new("UICorner")
-    btnCorner2.CornerRadius = UDim.new(0, 10)
-    btnCorner2.Parent = copyBtn
-    
-    -- ====================================================
-    -- RÉSULTAT
-    -- ====================================================
-    
-    local resultContainer = Instance.new("Frame")
-    resultContainer.Size = UDim2.new(0.9, 0, 0, 100)
-    resultContainer.Position = UDim2.new(0.05, 0, 0, 185)
-    resultContainer.BackgroundColor3 = THEME.Surface
-    resultContainer.BackgroundTransparency = 0.3
-    resultContainer.BorderSizePixel = 1
-    resultContainer.BorderColor3 = THEME.Border
-    resultContainer.ClipsDescendants = true
-    resultContainer.Parent = mainFrame
-    
-    local resultCorner = Instance.new("UICorner")
-    resultCorner.CornerRadius = UDim.new(0, 10)
-    resultCorner.Parent = resultContainer
-    
-    local resultText = Instance.new("TextLabel")
-    resultText.Size = UDim2.new(1, -20, 0, 50)
-    resultText.Position = UDim2.new(0, 10, 0, 10)
-    resultText.BackgroundTransparency = 1
-    resultText.Text = "⏳ En attente d'un lien..."
-    resultText.TextColor3 = THEME.TextSecondary
-    resultText.TextSize = 13
-    resultText.Font = Enum.Font.Gotham
-    resultText.TextWrapped = true
-    resultText.TextXAlignment = Enum.TextXAlignment.Center
-    resultText.Parent = resultContainer
-    
-    local statusText = Instance.new("TextLabel")
-    statusText.Size = UDim2.new(1, -20, 0, 25)
-    statusText.Position = UDim2.new(0, 10, 0, 65)
-    statusText.BackgroundTransparency = 1
-    statusText.Text = "✅ Prêt"
-    statusText.TextColor3 = THEME.Success
-    statusText.TextSize = 12
-    statusText.Font = Enum.Font.Gotham
-    statusText.TextXAlignment = Enum.TextXAlignment.Center
-    statusText.Parent = resultContainer
-    
-    -- ====================================================
-    -- FOOTER
-    -- ====================================================
-    
-    local footer = Instance.new("TextLabel")
-    footer.Size = UDim2.new(1, 0, 0, 25)
-    footer.Position = UDim2.new(0, 0, 0, 385)
-    footer.BackgroundTransparency = 1
-    footer.Text = "💡 Ctrl+V pour coller  •  Entrée pour convertir"
-    footer.TextColor3 = THEME.TextDim
-    footer.TextSize = 10
-    footer.Font = Enum.Font.Gotham
-    footer.TextXAlignment = Enum.TextXAlignment.Center
-    footer.Parent = mainFrame
---[[
-    ═══════════════════════════════════════════════════
-    ✨ RAW LINK CONVERTER v4.0 - PARTIE 3/3
-    ═══════════════════════════════════════════════════
-]]
+local MainTab = Window:AddTab({
+    Title = "🏠 Accueil",
+    Icon = "home"
+})
 
-    -- ====================================================
-    -- DRAG & DROP
-    -- ====================================================
-    
-    local dragData = { dragging = false }
-    
-    titleBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragData.dragging = true
-            dragData.startMouse = input.Position
-            dragData.framePos = mainFrame.Position
-            
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragData.dragging = false
-                end
-            end)
-        end
-    end)
-    
-    UserInputService.InputChanged:Connect(function(input)
-        if dragData.dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = input.Position - dragData.startMouse
-            mainFrame.Position = UDim2.new(
-                dragData.framePos.X.Scale,
-                dragData.framePos.X.Offset + delta.X,
-                dragData.framePos.Y.Scale,
-                dragData.framePos.Y.Offset + delta.Y
-            )
-        end
-    end)
-    
-    -- ====================================================
-    -- FONCTIONS UI
-    -- ====================================================
-    
-    local function updateStatus(text, color)
-        statusText.Text = text
-        statusText.TextColor3 = color or THEME.Success
+-- ================================================================
+-- SECTION : INPUT
+-- ================================================================
+
+local InputSection = MainTab:AddSection({
+    Title = "📥 Entrez votre lien"
+})
+
+-- Input
+local LinkInput = InputSection:AddInput({
+    Title = "Lien à convertir",
+    Subtitle = "Collez n'importe quel lien GitHub, Pastebin, Gist...",
+    Placeholder = "https://github.com/user/repo/blob/main/script.lua",
+    Callback = function(Value)
+        currentUrl = Value
     end
-    
-    local function animateButton(btn, color)
-        local t = TweenService:Create(btn, TweenInfo.new(0.1), {
-            BackgroundColor3 = color
-        })
-        t:Play()
-        t.Completed:Connect(function()
-            TweenService:Create(btn, TweenInfo.new(0.15), {
-                BackgroundColor3 = btn.BackgroundColor3
-            }):Play()
-        end)
-    end
-    
-    -- ====================================================
-    -- ÉVÉNEMENTS
-    -- ====================================================
-    
-    -- Convertir
-    convertBtn.MouseButton1Click:Connect(function()
-        local url = inputBox.Text
-        if url == "" then
-            updateStatus("❌ Entrez un lien !", THEME.Error)
-            animateButton(convertBtn, THEME.Error)
+})
+
+-- ================================================================
+-- SECTION : BOUTONS
+-- ================================================================
+
+local ButtonSection = MainTab:AddSection({
+    Title = "⚡ Actions"
+})
+
+-- Bouton Convertir
+ButtonSection:AddButton({
+    Title = "🔄 Convertir en Raw",
+    Description = "Transforme le lien en format raw",
+    Callback = function()
+        if currentUrl == "" then
+            Fluent:Notify({
+                Title = "❌ Erreur",
+                Content = "Veuillez entrer un lien !",
+                Duration = 3
+            })
             return
         end
         
-        updateStatus("⏳ Conversion...", THEME.Warning)
-        
-        local rawUrl, wasRaw = convertToRaw(url)
+        local rawUrl, wasRaw = convertToRaw(currentUrl)
+        convertedUrl = rawUrl
         
         if wasRaw then
-            resultText.Text = "✅ Déjà en raw !\n" .. rawUrl
-            updateStatus("✅ Déjà raw", THEME.Success)
+            ResultLabel:SetValue("✅ Déjà en format raw !\n" .. rawUrl)
+            Fluent:Notify({
+                Title = "✅ Lien déjà raw",
+                Content = "Le lien est déjà au bon format",
+                Duration = 3
+            })
         else
-            resultText.Text = "✅ Converti !\n" .. rawUrl
-            updateStatus("✅ Converti !", THEME.Success)
+            ResultLabel:SetValue("✅ Converti avec succès !\n" .. rawUrl)
+            Fluent:Notify({
+                Title = "✅ Conversion réussie !",
+                Content = "Le lien a été converti en raw",
+                Duration = 3
+            })
         end
-        
-        animateButton(convertBtn, THEME.Success)
-    end)
-    
-    -- Copier
-    copyBtn.MouseButton1Click:Connect(function()
-        local text = resultText.Text
-        if text == "" or text == "⏳ En attente d'un lien..." then
-            updateStatus("❌ Rien à copier", THEME.Error)
-            animateButton(copyBtn, THEME.Error)
+    end
+})
+
+-- ================================================================
+-- SECTION : RÉSULTAT
+-- ================================================================
+
+local ResultSection = MainTab:AddSection({
+    Title = "📋 Résultat"
+})
+
+-- Label résultat
+local ResultLabel = ResultSection:AddLabel({
+    Title = "En attente d'un lien...",
+    Description = "Le résultat apparaîtra ici"
+})
+
+-- ================================================================
+-- SECTION : ACTIONS SUR LE RÉSULTAT
+-- ================================================================
+
+local ActionSection = MainTab:AddSection({
+    Title = "🎯 Actions sur le résultat"
+})
+
+-- Bouton Copier URL
+ActionSection:AddButton({
+    Title = "📋 Copier l'URL brute",
+    Description = "Copie uniquement le lien raw",
+    Callback = function()
+        if convertedUrl == "" then
+            Fluent:Notify({
+                Title = "❌ Erreur",
+                Content = "Aucun lien à copier !",
+                Duration = 3
+            })
             return
         end
         
-        local url = text:match("https?://[^%s]+")
-        if url then
-            if copyToClipboard(url) then
-                updateStatus("✅ URL copiée !", Color3.fromRGB(100, 200, 255))
-                animateButton(copyBtn, Color3.fromRGB(0, 200, 200))
-            else
-                updateStatus("❌ Erreur de copie", THEME.Error)
-            end
+        if copyToClipboard(convertedUrl) then
+            Fluent:Notify({
+                Title = "✅ Copié !",
+                Content = "URL brute copiée dans le presse-papier",
+                Duration = 3
+            })
         else
-            if copyToClipboard(text) then
-                updateStatus("✅ Copié !", THEME.Success)
-            else
-                updateStatus("❌ Erreur de copie", THEME.Error)
-            end
+            Fluent:Notify({
+                Title = "❌ Erreur",
+                Content = "Impossible de copier",
+                Duration = 3
+            })
         end
-    end)
-    
-    -- Fermer
-    closeBtn.MouseButton1Click:Connect(function()
-        screenGui:Destroy()
-    end)
-    
-    -- Hover fermer
-    closeBtn.MouseEnter:Connect(function()
-        TweenService:Create(closeBtn, TweenInfo.new(0.2), {
-            TextColor3 = THEME.Error
-        }):Play()
-    end)
-    
-    closeBtn.MouseLeave:Connect(function()
-        TweenService:Create(closeBtn, TweenInfo.new(0.2), {
-            TextColor3 = Color3.fromRGB(150, 150, 180)
-        }):Play()
-    end)
-    
-    -- Raccourcis
-    UserInputService.InputBegan:Connect(function(input, gameProcessed)
-        if gameProcessed then return end
-        
-        if input.KeyCode == Enum.KeyCode.V and UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
-            local mouse = LocalPlayer:GetMouse()
-            if mouse and mouse.GetClipboard then
-                local text = mouse:GetClipboard()
-                if text and text:find("http") then
-                    inputBox.Text = text
-                    updateStatus("📋 Lien collé !", Color3.fromRGB(100, 200, 255))
-                end
-            end
+    end
+})
+
+-- Bouton Copier Loadstring
+ActionSection:AddButton({
+    Title = "⚡ Copier le loadstring",
+    Description = "Copie 'loadstring(game:HttpGet('url'))()'",
+    Callback = function()
+        if convertedUrl == "" then
+            Fluent:Notify({
+                Title = "❌ Erreur",
+                Content = "Aucun lien à copier !",
+                Duration = 3
+            })
+            return
         end
         
-        if input.KeyCode == Enum.KeyCode.Return then
-            convertBtn.MouseButton1Click:Fire()
+        local loadstringCode = 'loadstring(game:HttpGet("' .. convertedUrl .. '"))()'
+        
+        if copyToClipboard(loadstringCode) then
+            Fluent:Notify({
+                Title = "✅ Loadstring copié !",
+                Content = "Prêt à être exécuté",
+                Duration = 3
+            })
+        else
+            Fluent:Notify({
+                Title = "❌ Erreur",
+                Content = "Impossible de copier",
+                Duration = 3
+            })
         end
-    end)
+    end
+})
+--[[
+    ═══════════════════════════════════════════════════════════════
+    ✨ RAW LINK CONVERTER v5.0 - PARTIE 3/3
+    ═══════════════════════════════════════════════════════════════
+]]
+
+-- ================================================================
+-- TAB : HISTORIQUE
+-- ================================================================
+
+local HistoryTab = Window:AddTab({
+    Title = "📜 Historique",
+    Icon = "history"
+})
+
+local HistorySection = HistoryTab:AddSection({
+    Title = "📋 Derniers liens convertis"
+})
+
+local historyList = {}
+
+local function addToHistory(original, converted)
+    table.insert(historyList, 1, {
+        original = original,
+        converted = converted,
+        time = os.date("%H:%M:%S")
+    })
     
-    -- Animation d'apparition
-    mainFrame.Size = UDim2.new(0, 0, 0, 0)
-    TweenService:Create(mainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back), {
-        Size = UDim2.new(0, 500, 0, 420)
-    }):Play()
+    if #historyList > 10 then
+        table.remove(historyList)
+    end
     
-    return screenGui
+    -- Mettre à jour l'affichage
+    local text = "🕐 Historique des conversions :\n\n"
+    for i, item in ipairs(historyList) do
+        text = text .. i .. ". " .. item.original .. "\n   → " .. item.converted .. "\n   ⏰ " .. item.time .. "\n\n"
+    end
+    
+    if #historyList == 0 then
+        text = "Aucune conversion pour le moment"
+    end
+    
+    HistoryLabel:SetValue(text)
 end
 
--- ====================================================
+local HistoryLabel = HistorySection:AddLabel({
+    Title = "Aucune conversion",
+    Description = "Les liens convertis apparaîtront ici"
+})
+
+-- ================================================================
+-- TAB : PARAMÈTRES
+-- ================================================================
+
+local SettingsTab = Window:AddTab({
+    Title = "⚙️ Paramètres",
+    Icon = "settings"
+})
+
+local SettingsSection = SettingsTab:AddSection({
+    Title = "⚙️ Configuration"
+})
+
+-- Toggle : Notifications
+SettingsSection:AddToggle({
+    Title = "🔔 Notifications",
+    Description = "Afficher les notifications lors des actions",
+    Default = true,
+    Callback = function(Value)
+        Fluent.NotifyEnabled = Value
+    end
+})
+
+-- Toggle : Design moderne
+SettingsSection:AddToggle({
+    Title = "✨ Design moderne",
+    Description = "Activer l'effet acrylique / glassmorphism",
+    Default = true,
+    Callback = function(Value)
+        Window.Acrylic = Value
+    end
+})
+
+-- ================================================================
+-- TAB : À PROPOS
+-- ================================================================
+
+local AboutTab = Window:AddTab({
+    Title = "ℹ️ À propos",
+    Icon = "info"
+})
+
+local AboutSection = AboutTab:AddSection({
+    Title = "ℹ️ Informations"
+})
+
+AboutSection:AddLabel({
+    Title = "⚡ Raw Link Converter v5.0",
+    Description = "Développé avec Fluent Library\n\n"
+        .. "📌 Fonctionnalités :\n"
+        .. "• Conversion automatique de liens (GitHub, Pastebin, Gist, GitLab)\n"
+        .. "• Copie d'URL brute\n"
+        .. "• Copie de loadstring prêt à l'emploi\n"
+        .. "• Historique des conversions\n"
+        .. "• Interface moderne et fluide\n\n"
+        .. "💡 Utilisation :\n"
+        .. "1. Collez un lien\n"
+        .. "2. Cliquez sur Convertir\n"
+        .. "3. Copiez l'URL ou le loadstring"
+})
+
+-- ================================================================
+-- RACCOURCIS CLAVIER GLOBAUX
+-- ================================================================
+
+local UserInputService = game:GetService("UserInputService")
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    
+    -- Ctrl+Shift+C pour copier le loadstring
+    if input.KeyCode == Enum.KeyCode.C and 
+       UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) and
+       UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+        
+        if convertedUrl ~= "" then
+            local loadstringCode = 'loadstring(game:HttpGet("' .. convertedUrl .. '"))()'
+            if copyToClipboard(loadstringCode) then
+                Fluent:Notify({
+                    Title = "✅ Loadstring copié !",
+                    Content = "Raccourci : Ctrl+Shift+C",
+                    Duration = 2
+                })
+            end
+        end
+    end
+end)
+
+-- ================================================================
+-- OVERRIDE DE LA FONCTION CONVERTIR POUR L'HISTORIQUE
+-- ================================================================
+
+-- Sauvegarder l'ancienne fonction
+local originalConvert = ButtonSection._Callbacks[1]
+
+-- Remplacer par la nouvelle avec historique
+ButtonSection:Clear()
+ButtonSection:AddButton({
+    Title = "🔄 Convertir en Raw",
+    Description = "Transforme le lien en format raw",
+    Callback = function()
+        if currentUrl == "" then
+            Fluent:Notify({
+                Title = "❌ Erreur",
+                Content = "Veuillez entrer un lien !",
+                Duration = 3
+            })
+            return
+        end
+        
+        local rawUrl, wasRaw = convertToRaw(currentUrl)
+        convertedUrl = rawUrl
+        
+        -- Ajouter à l'historique
+        addToHistory(currentUrl, rawUrl)
+        
+        if wasRaw then
+            ResultLabel:SetValue("✅ Déjà en format raw !\n" .. rawUrl)
+            Fluent:Notify({
+                Title = "✅ Lien déjà raw",
+                Content = "Le lien est déjà au bon format",
+                Duration = 3
+            })
+        else
+            ResultLabel:SetValue("✅ Converti avec succès !\n" .. rawUrl)
+            Fluent:Notify({
+                Title = "✅ Conversion réussie !",
+                Content = "Le lien a été converti en raw",
+                Duration = 3
+            })
+        end
+    end
+})
+
+-- ================================================================
 -- LANCEMENT
--- ====================================================
+-- ================================================================
 
-local existing = LocalPlayer:FindFirstChild("PlayerGui"):FindFirstChild("RawLinkConverterUI")
-if existing then existing:Destroy() end
+print("✨ Raw Link Converter v5.0 chargé avec Fluent !")
+print("📋 Raccourci : Ctrl+Shift+C pour copier le loadstring")
 
-createUI()
+-- Notifications de bienvenue
+Fluent:Notify({
+    Title = "⚡ Raw Link Converter",
+    Content = "Interface chargée avec succès !",
+    Duration = 3
+})
 
-print("✅ Raw Link Converter v4.0 chargé !")
-print("📋 Copie UNIQUEMENT l'URL (pas de loadstring)")
+Fluent:Notify({
+    Title = "💡 Astuce",
+    Content = "Ctrl+Shift+C pour copier le loadstring rapidement",
+    Duration = 3
+})
