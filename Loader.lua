@@ -1,6 +1,6 @@
 --[[
     ═══════════════════════════════════════════════════════════════
-    ✨ RAW LINK CONVERTER - PREMIUM UI
+    ✨ RAW LINK CONVERTER - PREMIUM UI (Mobile Optimized)
     Design moderne • Déplaçable • PC + Mobile
     ═══════════════════════════════════════════════════════════════
 ]]
@@ -13,9 +13,12 @@ local LocalPlayer = Players.LocalPlayer
 -- ========================
 -- VARIABLES
 -- ========================
-local currentUrl = ""
 local convertedUrl = ""
 local isMobile = UserInputService.TouchEnabled
+
+-- Taille adaptée
+local frameWidth = isMobile and 340 or 400
+local frameHeight = isMobile and 420 or 460
 
 -- ========================
 -- FONCTIONS UTILITAIRES
@@ -84,8 +87,8 @@ screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 -- Main Frame
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 420, 0, 480)
-mainFrame.Position = UDim2.new(0.5, -210, 0.5, -240)
+mainFrame.Size = UDim2.new(0, frameWidth, 0, frameHeight)
+mainFrame.Position = UDim2.new(0.5, -frameWidth/2, 0.5, -frameHeight/2)
 mainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
 mainFrame.BackgroundTransparency = 0.05
 mainFrame.BorderSizePixel = 0
@@ -93,10 +96,9 @@ mainFrame.ClipsDescendants = true
 mainFrame.Parent = screenGui
 
 local mainCorner = Instance.new("UICorner")
-mainCorner.CornerRadius = UDim.new(0, 22)
+mainCorner.CornerRadius = UDim.new(0, 18)
 mainCorner.Parent = mainFrame
 
--- Gradient subtil
 local gradient = Instance.new("UIGradient")
 gradient.Color = ColorSequence.new({
     ColorSequenceKeypoint.new(0, Color3.fromRGB(28, 22, 48)),
@@ -105,107 +107,105 @@ gradient.Color = ColorSequence.new({
 gradient.Rotation = 45
 gradient.Parent = mainFrame
 
--- Bordure néon
 local stroke = Instance.new("UIStroke")
 stroke.Color = Color3.fromRGB(139, 92, 246)
-stroke.Thickness = 1.5
+stroke.Thickness = 1.4
 stroke.Transparency = 0.35
 stroke.Parent = mainFrame
 
 -- ========================
--- TITLE BAR (zone de drag)
+-- TITLE BAR
 -- ========================
 local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 64)
+titleBar.Size = UDim2.new(1, 0, 0, 54)
 titleBar.BackgroundTransparency = 1
 titleBar.Parent = mainFrame
 
 local icon = Instance.new("TextLabel")
-icon.Size = UDim2.new(0, 42, 0, 42)
-icon.Position = UDim2.new(0, 16, 0, 11)
+icon.Size = UDim2.new(0, 36, 0, 36)
+icon.Position = UDim2.new(0, 12, 0, 9)
 icon.BackgroundTransparency = 1
 icon.Text = "⚡"
-icon.TextSize = 28
+icon.TextSize = 24
 icon.Font = Enum.Font.GothamBold
 icon.TextColor3 = Color3.fromRGB(167, 139, 250)
 icon.Parent = titleBar
 
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(0.65, 0, 0, 28)
-title.Position = UDim2.new(0, 68, 0, 10)
+title.Size = UDim2.new(0.65, 0, 0, 24)
+title.Position = UDim2.new(0, 54, 0, 8)
 title.BackgroundTransparency = 1
 title.Text = "Raw Converter"
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.TextSize = 20
+title.TextSize = 18
 title.Font = Enum.Font.GothamBold
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = titleBar
 
 local subtitle = Instance.new("TextLabel")
-subtitle.Size = UDim2.new(0.65, 0, 0, 18)
-subtitle.Position = UDim2.new(0, 68, 0, 36)
+subtitle.Size = UDim2.new(0.65, 0, 0, 16)
+subtitle.Position = UDim2.new(0, 54, 0, 30)
 subtitle.BackgroundTransparency = 1
 subtitle.Text = "Générateur de loadstring"
 subtitle.TextColor3 = Color3.fromRGB(160, 160, 190)
-subtitle.TextSize = 13
+subtitle.TextSize = 12
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextXAlignment = Enum.TextXAlignment.Left
 subtitle.Parent = titleBar
 
--- Bouton Fermer
 local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 38, 0, 38)
-closeBtn.Position = UDim2.new(1, -50, 0, 13)
+closeBtn.Size = UDim2.new(0, 34, 0, 34)
+closeBtn.Position = UDim2.new(1, -44, 0, 10)
 closeBtn.BackgroundColor3 = Color3.fromRGB(40, 35, 55)
 closeBtn.BackgroundTransparency = 0.3
 closeBtn.Text = "✕"
 closeBtn.TextColor3 = Color3.fromRGB(220, 220, 240)
-closeBtn.TextSize = 18
+closeBtn.TextSize = 16
 closeBtn.Font = Enum.Font.GothamBold
 closeBtn.BorderSizePixel = 0
 closeBtn.Parent = titleBar
 
 local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(0, 10)
+closeCorner.CornerRadius = UDim.new(0, 9)
 closeCorner.Parent = closeBtn
 -- ========================
 -- INPUT
 -- ========================
 local inputContainer = Instance.new("Frame")
-inputContainer.Size = UDim2.new(1, -40, 0, 54)
-inputContainer.Position = UDim2.new(0, 20, 0, 80)
+inputContainer.Size = UDim2.new(1, -32, 0, 48)
+inputContainer.Position = UDim2.new(0, 16, 0, 66)
 inputContainer.BackgroundColor3 = Color3.fromRGB(28, 28, 45)
 inputContainer.BackgroundTransparency = 0.25
 inputContainer.BorderSizePixel = 0
 inputContainer.Parent = mainFrame
 
 local inputCorner = Instance.new("UICorner")
-inputCorner.CornerRadius = UDim.new(0, 14)
+inputCorner.CornerRadius = UDim.new(0, 12)
 inputCorner.Parent = inputContainer
 
 local inputStroke = Instance.new("UIStroke")
 inputStroke.Color = Color3.fromRGB(60, 55, 90)
-inputStroke.Thickness = 1.2
+inputStroke.Thickness = 1.1
 inputStroke.Transparency = 0.4
 inputStroke.Parent = inputContainer
 
 local inputIcon = Instance.new("TextLabel")
-inputIcon.Size = UDim2.new(0, 36, 0, 36)
-inputIcon.Position = UDim2.new(0, 12, 0, 9)
+inputIcon.Size = UDim2.new(0, 32, 0, 32)
+inputIcon.Position = UDim2.new(0, 10, 0, 8)
 inputIcon.BackgroundTransparency = 1
 inputIcon.Text = "🔗"
-inputIcon.TextSize = 20
+inputIcon.TextSize = 18
 inputIcon.Parent = inputContainer
 
 local inputBox = Instance.new("TextBox")
-inputBox.Size = UDim2.new(1, -60, 1, 0)
-inputBox.Position = UDim2.new(0, 52, 0, 0)
+inputBox.Size = UDim2.new(1, -50, 1, 0)
+inputBox.Position = UDim2.new(0, 44, 0, 0)
 inputBox.BackgroundTransparency = 1
 inputBox.Text = ""
-inputBox.PlaceholderText = "Collez votre lien GitHub / Pastebin..."
+inputBox.PlaceholderText = "Collez votre lien ici..."
 inputBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 155)
 inputBox.TextColor3 = Color3.fromRGB(245, 245, 255)
-inputBox.TextSize = 15
+inputBox.TextSize = 14
 inputBox.Font = Enum.Font.Gotham
 inputBox.ClearTextOnFocus = false
 inputBox.TextXAlignment = Enum.TextXAlignment.Left
@@ -215,38 +215,38 @@ inputBox.Parent = inputContainer
 -- BOUTONS
 -- ========================
 local convertBtn = Instance.new("TextButton")
-convertBtn.Size = UDim2.new(0.46, -8, 0, 50)
-convertBtn.Position = UDim2.new(0.04, 0, 0, 150)
+convertBtn.Size = UDim2.new(0.46, -6, 0, 44)
+convertBtn.Position = UDim2.new(0.04, 0, 0, 128)
 convertBtn.BackgroundColor3 = Color3.fromRGB(139, 92, 246)
-convertBtn.Text = "🔄  Convertir"
+convertBtn.Text = "🔄 Convertir"
 convertBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-convertBtn.TextSize = 16
+convertBtn.TextSize = 15
 convertBtn.Font = Enum.Font.GothamBold
 convertBtn.BorderSizePixel = 0
 convertBtn.Parent = mainFrame
 
 local convertCorner = Instance.new("UICorner")
-convertCorner.CornerRadius = UDim.new(0, 13)
+convertCorner.CornerRadius = UDim.new(0, 11)
 convertCorner.Parent = convertBtn
 
 local copyBtn = Instance.new("TextButton")
-copyBtn.Size = UDim2.new(0.46, -8, 0, 50)
-copyBtn.Position = UDim2.new(0.5, 8, 0, 150)
+copyBtn.Size = UDim2.new(0.46, -6, 0, 44)
+copyBtn.Position = UDim2.new(0.5, 6, 0, 128)
 copyBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
-copyBtn.Text = "📋  Copier"
+copyBtn.Text = "📋 Copier"
 copyBtn.TextColor3 = Color3.fromRGB(220, 220, 240)
-copyBtn.TextSize = 16
+copyBtn.TextSize = 15
 copyBtn.Font = Enum.Font.GothamBold
 copyBtn.BorderSizePixel = 0
 copyBtn.Parent = mainFrame
 
 local copyCorner = Instance.new("UICorner")
-copyCorner.CornerRadius = UDim.new(0, 13)
+copyCorner.CornerRadius = UDim.new(0, 11)
 copyCorner.Parent = copyBtn
 
 local copyStroke = Instance.new("UIStroke")
 copyStroke.Color = Color3.fromRGB(80, 75, 120)
-copyStroke.Thickness = 1.2
+copyStroke.Thickness = 1.1
 copyStroke.Transparency = 0.4
 copyStroke.Parent = copyBtn
 
@@ -254,38 +254,38 @@ copyStroke.Parent = copyBtn
 -- RÉSULTAT
 -- ========================
 local resultContainer = Instance.new("Frame")
-resultContainer.Size = UDim2.new(1, -40, 0, 160)
-resultContainer.Position = UDim2.new(0, 20, 0, 220)
+resultContainer.Size = UDim2.new(1, -32, 0, 145)
+resultContainer.Position = UDim2.new(0, 16, 0, 188)
 resultContainer.BackgroundColor3 = Color3.fromRGB(22, 22, 36)
 resultContainer.BackgroundTransparency = 0.2
 resultContainer.BorderSizePixel = 0
 resultContainer.Parent = mainFrame
 
 local resultCorner = Instance.new("UICorner")
-resultCorner.CornerRadius = UDim.new(0, 16)
+resultCorner.CornerRadius = UDim.new(0, 14)
 resultCorner.Parent = resultContainer
 
 local resultStroke = Instance.new("UIStroke")
 resultStroke.Color = Color3.fromRGB(50, 45, 80)
-resultStroke.Thickness = 1.2
+resultStroke.Thickness = 1.1
 resultStroke.Transparency = 0.45
 resultStroke.Parent = resultContainer
 
 local statusIcon = Instance.new("TextLabel")
-statusIcon.Size = UDim2.new(0, 40, 0, 40)
-statusIcon.Position = UDim2.new(0, 16, 0, 16)
+statusIcon.Size = UDim2.new(0, 34, 0, 34)
+statusIcon.Position = UDim2.new(0, 12, 0, 12)
 statusIcon.BackgroundTransparency = 1
 statusIcon.Text = "⏳"
-statusIcon.TextSize = 24
+statusIcon.TextSize = 20
 statusIcon.Parent = resultContainer
 
 local resultText = Instance.new("TextLabel")
-resultText.Size = UDim2.new(1, -70, 0, 70)
-resultText.Position = UDim2.new(0, 62, 0, 14)
+resultText.Size = UDim2.new(1, -56, 0, 62)
+resultText.Position = UDim2.new(0, 50, 0, 12)
 resultText.BackgroundTransparency = 1
 resultText.Text = "En attente d'un lien..."
 resultText.TextColor3 = Color3.fromRGB(180, 180, 210)
-resultText.TextSize = 14
+resultText.TextSize = 13
 resultText.Font = Enum.Font.Gotham
 resultText.TextWrapped = true
 resultText.TextXAlignment = Enum.TextXAlignment.Left
@@ -293,20 +293,20 @@ resultText.TextYAlignment = Enum.TextYAlignment.Top
 resultText.Parent = resultContainer
 
 local statusText = Instance.new("TextLabel")
-statusText.Size = UDim2.new(1, -70, 0, 24)
-statusText.Position = UDim2.new(0, 62, 0, 100)
+statusText.Size = UDim2.new(1, -56, 0, 20)
+statusText.Position = UDim2.new(0, 50, 0, 85)
 statusText.BackgroundTransparency = 1
 statusText.Text = "✅ Prêt"
 statusText.TextColor3 = Color3.fromRGB(52, 211, 153)
-statusText.TextSize = 14
+statusText.TextSize = 13
 statusText.Font = Enum.Font.GothamMedium
 statusText.TextXAlignment = Enum.TextXAlignment.Left
 statusText.Parent = resultContainer
 
 -- Progress bar
 local progressBg = Instance.new("Frame")
-progressBg.Size = UDim2.new(1, -32, 0, 4)
-progressBg.Position = UDim2.new(0, 16, 1, -18)
+progressBg.Size = UDim2.new(1, -24, 0, 3)
+progressBg.Position = UDim2.new(0, 12, 1, -14)
 progressBg.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
 progressBg.BorderSizePixel = 0
 progressBg.Parent = resultContainer
@@ -329,12 +329,12 @@ progressBarCorner.Parent = progressBar
 -- FOOTER
 -- ========================
 local footer = Instance.new("TextLabel")
-footer.Size = UDim2.new(1, 0, 0, 30)
-footer.Position = UDim2.new(0, 0, 1, -38)
+footer.Size = UDim2.new(1, 0, 0, 26)
+footer.Position = UDim2.new(0, 0, 1, -32)
 footer.BackgroundTransparency = 1
-footer.Text = "💡 Collez • Convertissez • Copiez le loadstring"
+footer.Text = "💡 Collez • Convertissez • Copiez"
 footer.TextColor3 = Color3.fromRGB(130, 130, 160)
-footer.TextSize = 12
+footer.TextSize = 11
 footer.Font = Enum.Font.Gotham
 footer.Parent = mainFrame
 -- ========================
@@ -411,35 +411,35 @@ convertBtn.MouseButton1Click:Connect(function()
         return
     end
     
-    updateStatus("⏳ Conversion en cours...", Color3.fromRGB(251, 191, 36), "⏳")
+    updateStatus("⏳ Conversion...", Color3.fromRGB(251, 191, 36), "⏳")
     
-    TweenService:Create(progressBar, TweenInfo.new(0.4), {
+    TweenService:Create(progressBar, TweenInfo.new(0.35), {
         Size = UDim2.new(0.65, 0, 1, 0)
     }):Play()
     
     local rawUrl, wasRaw = convertToRaw(url)
     convertedUrl = rawUrl
     
-    task.wait(0.25)
+    task.wait(0.2)
     
-    TweenService:Create(progressBar, TweenInfo.new(0.25), {
+    TweenService:Create(progressBar, TweenInfo.new(0.2), {
         Size = UDim2.new(1, 0, 1, 0)
     }):Play()
     
-    task.wait(0.2)
+    task.wait(0.15)
     
     if wasRaw then
         resultText.Text = "✅ Déjà en raw !\n" .. rawUrl
         updateStatus("✅ Lien déjà raw", Color3.fromRGB(52, 211, 153), "✅")
     else
-        resultText.Text = "✅ Converti avec succès !\n" .. rawUrl
+        resultText.Text = "✅ Converti !\n" .. rawUrl
         updateStatus("✅ Conversion réussie", Color3.fromRGB(52, 211, 153), "✅")
     end
     
     animateButton(convertBtn, Color3.fromRGB(52, 211, 153))
     
-    task.wait(0.6)
-    TweenService:Create(progressBar, TweenInfo.new(0.35), {
+    task.wait(0.5)
+    TweenService:Create(progressBar, TweenInfo.new(0.3), {
         Size = UDim2.new(0, 0, 1, 0)
     }):Play()
 end)
@@ -462,12 +462,12 @@ copyBtn.MouseButton1Click:Connect(function()
 end)
 
 closeBtn.MouseButton1Click:Connect(function()
-    TweenService:Create(mainFrame, TweenInfo.new(0.28, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+    TweenService:Create(mainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
         Size = UDim2.new(0, 0, 0, 0),
         BackgroundTransparency = 1,
         Position = UDim2.new(0.5, 0, 0.5, 0)
     }):Play()
-    task.wait(0.3)
+    task.wait(0.25)
     screenGui:Destroy()
 end)
 
@@ -500,10 +500,9 @@ end)
 mainFrame.Size = UDim2.new(0, 0, 0, 0)
 mainFrame.BackgroundTransparency = 1
 
-TweenService:Create(mainFrame, TweenInfo.new(0.55, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-    Size = UDim2.new(0, 420, 0, 480),
+TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+    Size = UDim2.new(0, frameWidth, 0, frameHeight),
     BackgroundTransparency = 0.05
 }):Play()
 
-print("✨ Raw Converter Premium chargé")
-print("📱 Optimisé PC + Mobile • Déplaçable")
+print("✨ Raw Converter Premium (Mobile Optimized) chargé")
